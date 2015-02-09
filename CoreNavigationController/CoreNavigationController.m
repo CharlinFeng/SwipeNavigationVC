@@ -148,23 +148,25 @@
         startTouch = touchPoint;
         if (!self.backgroundView)
         {
-            CGRect frame = self.view.frame;
             UIView *view=[[UIView alloc]init];
             self.backgroundView = view;
             
             [self.view.superview insertSubview:self.backgroundView belowSubview:self.view];
-            
             
             view.translatesAutoresizingMaskIntoConstraints=NO;
             NSDictionary *views=NSDictionaryOfVariableBindings(view);
             [self.view.superview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[view]-0-|" options:0 metrics:nil views:views]];
             [self.view.superview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[view]-0-|" options:0 metrics:nil views:views]];
             
-            
-            
-            blackMask = [[UIView alloc]initWithFrame:CGRectMake(0, 0, frame.size.width , frame.size.height)];
+            blackMask = [[UIView alloc]init];
             blackMask.backgroundColor = [UIColor blackColor];
             [self.backgroundView addSubview:blackMask];
+            
+            blackMask.translatesAutoresizingMaskIntoConstraints=NO;
+            NSDictionary *views2=NSDictionaryOfVariableBindings(blackMask);
+            
+            [self.backgroundView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[blackMask]-0-|" options:0 metrics:nil views:views2]];
+            [self.backgroundView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[blackMask]-0-|" options:0 metrics:nil views:views2]];
         }
         
         self.backgroundView.hidden = NO;
