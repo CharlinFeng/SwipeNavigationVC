@@ -17,18 +17,12 @@
 
 @property (nonatomic,assign) BOOL isMoving;
 
+@property (nonatomic,strong) UIPanGestureRecognizer *recognizer;
+
 @end
 
 @implementation CoreNavigationController
 
-- (void)dealloc
-{
-    self.screenShotsList = nil;
-    
-    [self.backgroundView removeFromSuperview];
-    self.backgroundView = nil;
-    
-}
 
 - (void)viewDidLoad
 {
@@ -41,11 +35,15 @@
     shadowImageView.frame = CGRectMake(-10, 0, 10, self.view.frame.size.height);
     [self.view addSubview:shadowImageView];
     
-    UIPanGestureRecognizer *recognizer = [[UIPanGestureRecognizer alloc]initWithTarget:self
-                                                                                action:@selector(paningGestureReceive:)];
-//    [recognizer setDelegate:self];
-    [recognizer delaysTouchesBegan];
-    [self.view addGestureRecognizer:recognizer];
+}
+
+- (void)dealloc
+{
+    self.screenShotsList = nil;
+    
+    [self.backgroundView removeFromSuperview];
+    self.backgroundView = nil;
+    
 }
 
 - (void)didReceiveMemoryWarning
@@ -58,7 +56,7 @@
 
 - (void)pushViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
-
+    
     [self.screenShotsList addObject:[self capture]];
     
     [super pushViewController:viewController animated:animated];
@@ -163,10 +161,10 @@
             [self.backgroundView addSubview:blackMask];
             
             blackMask.translatesAutoresizingMaskIntoConstraints=NO;
-            NSDictionary *views2=NSDictionaryOfVariableBindings(blackMask);
+            NSDictionary *blackMaskDict=NSDictionaryOfVariableBindings(blackMask);
             
-            [self.backgroundView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[blackMask]-0-|" options:0 metrics:nil views:views2]];
-            [self.backgroundView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[blackMask]-0-|" options:0 metrics:nil views:views2]];
+            [self.backgroundView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[blackMask]-0-|" options:0 metrics:nil views:blackMaskDict]];
+            [self.backgroundView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-0-[blackMask]-0-|" options:0 metrics:nil views:blackMaskDict]];
         }
         
         self.backgroundView.hidden = NO;
@@ -204,7 +202,8 @@
 -(void)addShadow{
     self.view.layer.shadowColor=[UIColor blackColor].CGColor;
     self.view.layer.shadowOffset=CGSizeMake(-6.0f, 0);
-    self.view.layer.shadowOpacity=.16f;
+    self.view.layer.shadowOpacity=.3f;
+    self.view.layer.shadowPath=CGPathCreateWithRect(self.view.bounds, NULL);
 }
 
 -(void)removeShadow{
@@ -257,10 +256,20 @@
         [self moveViewWithX:finishPop ? navigationWidth : 0];
     } completion:completion];
 }
+-(void)setCanDragBack:(BOOL)canDragBack{
+    
+    _canDragBack=canDragBack;
+    
+    if(canDragBack==NO){
+        [self.view removeGestureRecognizer:self.recognizer];
+    }else{
+        UIPanGestureRecognizer *recognizer = [[UIPanGestureRecognizer alloc]initWithTarget:self
+                                                                                    action:@selector(paningGestureReceive:)];
+        self.recognizer=recognizer;
+        //    [recognizer setDelegate:self];
+        [recognizer delaysTouchesBegan];
+        [self.view addGestureRecognizer:recognizer];
+    }
+}
 
 @end
-
-
-
-
-
